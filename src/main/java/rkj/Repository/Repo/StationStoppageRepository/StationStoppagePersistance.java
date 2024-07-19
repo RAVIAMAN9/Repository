@@ -3,8 +3,8 @@ package rkj.Repository.Repo.StationStoppageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import rkj.objLib.objLib.StationStoppageObject.StationStoppage;
-import rkj.objLib.objLib.StationStoppageObject.StationStoppageEntity;
+import rkj.objLib.objLib.ServiceObjects.StationStoppageObject.StationStoppage;
+import rkj.objLib.objLib.ServiceObjects.StationStoppageObject.StationStoppageEntity;
 
 import java.util.List;
 

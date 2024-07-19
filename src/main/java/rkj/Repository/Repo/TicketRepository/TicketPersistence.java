@@ -5,14 +5,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rkj.objLib.objLib.PassengerObject.Passenger;
-import rkj.objLib.objLib.TicketObject.Ticket;
-import rkj.objLib.objLib.TicketObject.TicketEntity;
-import rkj.objLib.objLib.TicketObject.TicketResponse;
+import rkj.objLib.objLib.ServiceObjects.PassengerObject.Passenger;
+import rkj.objLib.objLib.ServiceObjects.TicketObject.Ticket;
+import rkj.objLib.objLib.ServiceObjects.TicketObject.TicketEntity;
+import rkj.objLib.objLib.ServiceObjects.TicketObject.TicketResponse;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
