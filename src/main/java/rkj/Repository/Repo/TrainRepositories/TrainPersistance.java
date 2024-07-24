@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import rkj.objLib.objLib.AsynchronousObjects.RabbitMqObjects.TicketEvent;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.Train;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.TrainResponse;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Entity.TrainEntity;
@@ -46,11 +47,17 @@ public class TrainPersistance {
         return tr;
     }
 
-//    @Transactional
-//    public void updateTrain(TicketEvent ticketEvent){
-//        Integer q = getNumberOfSeats(ticketEvent.getCoachType(), ticketEvent.getTrainNumber());
-//        updateTrainDetails(ticketEvent.getTrainNumber(), ticketEvent.getCoachType(), (q-ticketEvent.getNumberOfSeats()));
-//    }
+    @Transactional
+    public void updateTrain(TicketEvent ticketEvent){
+        Integer q = getNumberOfSeats(ticketEvent.getCoachType(), ticketEvent.getTrainNumber());
+        Integer seatNumber = 0;
+        if(ticketEvent.getIsCancellable().equals(0)){
+            seatNumber = q-ticketEvent.getNumberOfSeats();
+        } else {
+            seatNumber =q+ticketEvent.getNumberOfSeats();
+        }
+        updateTrainDetails(ticketEvent.getTrainNumber(), ticketEvent.getCoachType(), seatNumber);
+    }
 
     private Integer getNumberOfSeats(String coachType, Integer trainNumber){
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -58,15 +65,18 @@ public class TrainPersistance {
         Root<TrainEntity> root = cq.from(TrainEntity.class);
         cq.select(root.get(coachType));
         cq.where(cb.equal(root.get("trainNumber"),trainNumber));
-        return entityManager.createQuery(cq).getFirstResult();
+        return entityManager.createQuery(cq).getSingleResult();
 
     }
 
-    private void updateTrainDetails(Integer trainNumber, String columnName, Integer numberOfSeats){
-        String sql = "Update train.train set "+columnName+ " = :numberOfSeats where train_number= :trainNumber";
-        entityManager.createNativeQuery(sql)
-                .setParameter("numberOfSeats",numberOfSeats)
-                .setParameter("trainNumber",trainNumber)
-                .executeUpdate();
+    private int updateTrainDetails(Integer trainNumber, String columnName, Integer numberOfSeats){
+       CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+       CriteriaUpdate<TrainEntity> cq = cb.createCriteriaUpdate(TrainEntity.class);
+       Root<TrainEntity> root = cq.from(TrainEntity.class);
+       cq.set(root.get(columnName),numberOfSeats);
+       cq.where(cb.equal(root.get("trainNumber"),trainNumber));
+        return entityManager.createQuery(cq).executeUpdate();
+
+
     }
 }

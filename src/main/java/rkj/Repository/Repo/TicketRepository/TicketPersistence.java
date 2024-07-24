@@ -29,6 +29,7 @@ public class TicketPersistence {
         tt.setBoarding(ticket.getBoarding());
         tt.setDestination(ticket.getDestination());
         tt.setPassengerList(passengerList);
+        tt.setCoachType(ticket.getCoachType());
         TicketEntity te = ticketRepository.save(tt);
         TicketResponse tr = new TicketResponse();
         tr.setPnrNumber(te.getPnrNumber());
@@ -39,4 +40,7 @@ public class TicketPersistence {
         return tr;
     }
 
+    public Ticket getTicketDetails(Integer pnrNumber){
+        return mapper.convertValue(ticketRepository.findById(pnrNumber).get(),Ticket.class);
+    }
 }
