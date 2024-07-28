@@ -1,8 +1,11 @@
 package rkj.Repository.Repo.TicketRepository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rkj.objLib.objLib.ServiceObjects.PassengerObject.Passenger;
@@ -11,6 +14,7 @@ import rkj.objLib.objLib.ServiceObjects.TicketObject.TicketEntity;
 import rkj.objLib.objLib.ServiceObjects.TicketObject.TicketResponse;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -40,7 +44,21 @@ public class TicketPersistence {
         return tr;
     }
 
-    public Ticket getTicketDetails(Integer pnrNumber){
-        return mapper.convertValue(ticketRepository.findById(pnrNumber).get(),Ticket.class);
+    public TicketResponse getTicketDetails(Integer pnrNumber) throws JsonProcessingException {
+        TicketEntity te = ticketRepository.findById(pnrNumber).get();
+        List<Passenger> p = mapper.readValue(te.getPassengerList(), new TypeReference<List<Passenger>>() {});
+        TicketResponse tr = new TicketResponse();
+        tr.setTrainNumber(te.getTrainNumber());
+        tr.setPnrNumber(te.getPnrNumber());
+        tr.setBoarding(te.getBoarding());
+        tr.setDestination(te.getDestination());
+        tr.setCoachType(te.getCoachType());
+        tr.setPassengerList(p);
+        return tr;
+    }
+
+    @Transactional
+    public void updateTicketStatus(Integer pnrNumber){
+        ticketRepository.updateTicketStatus(1,pnrNumber);
     }
 }
