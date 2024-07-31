@@ -19,6 +19,7 @@ import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.Train;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Entity.TrainEntity;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class StationPersistence {
@@ -34,12 +35,22 @@ public class StationPersistence {
     @Autowired
     private TrainRepo tr;
 
+    public Station getStationDetails(String stationCode){
+        StationEntity se = stationRepo.findById(stationCode).get();
+        return mapper.convertValue(stationRepo.findById(stationCode).get(),Station.class);
+    }
+
+    public Station getStation(String stationCode){
+        List<Integer> se = stationRepo.getTrainNumbers(stationCode);
+        se.add(1);
+        return mapper.convertValue(stationRepo.findById(stationCode).get(),Station.class);
+    }
     public void addStation(Station station) {
         StationEntity se = new StationEntity();
         se.setStationCode(station.getStationCode());
         se.setStationName(station.getStationName());
         se.setState(station.getState());
-        String s = station.getTrainList().toString();
+        List<Integer> s = station.getTrainNumbers();
         se.setTrainNumbers(s);
         stationRepo.save(se);
         //stationRepo.save(mapper.convertValue(station, StationEntity.class));
@@ -48,11 +59,14 @@ public class StationPersistence {
     @Transactional
     public void updateTrainStoppage(String stationCode, Integer trainNumber) throws JsonProcessingException {
         StationEntity se = stationRepo.findById(stationCode).get();
-        List s = mapper.readValue(se.getTrainNumbers(), List.class);
-        s.add(trainNumber);
-//        StringBuffer sb = new StringBuffer(s);
-//        sb.append(trainNumber);
-        stationRepo.updateTrainNumbers(s.toString(), stationCode);
+        List<Integer> lst = se.getTrainNumbers();
+        lst.add(trainNumber);
+        String s = lst.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+        s.replace("[","");
+        s.replace("]","");
+        stationRepo.updateTrainNumbers(s, stationCode);
         //updateTrainStoppageList(stationCode, String.valueOf(sb));
     }
 

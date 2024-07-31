@@ -1,5 +1,6 @@
 package rkj.Repository.Repo.TrainRepositories;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -15,6 +16,9 @@ import rkj.objLib.objLib.AsynchronousObjects.RabbitMqObjects.TicketEvent;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.Train;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.TrainResponse;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Entity.TrainEntity;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class TrainPersistance {
@@ -44,6 +48,7 @@ public class TrainPersistance {
         tr.setAc3Tier(t.getAc3Tier());
         tr.setSleeper(t.getSleeper());
         tr.setChairCar(t.getChairCar());
+        tr.setStoppages(t.getStoppages());
         return tr;
     }
 
@@ -76,8 +81,18 @@ public class TrainPersistance {
        cq.set(root.get(columnName),numberOfSeats);
        cq.where(cb.equal(root.get("trainNumber"),trainNumber));
         return entityManager.createQuery(cq).executeUpdate();
+    }
 
-
+    @Transactional
+    public void updateStoppagesInTrain(String stationCode, Integer trainNumber) throws JsonProcessingException {
+        List<String> list = trainRepo.findById(trainNumber).get().getStoppages();
+        //List list = mapper.readValue(s,List.class);
+        list.add(stationCode);
+        String s = list.stream()
+                        .collect(Collectors.joining(","));
+        s.replace("[","");
+        s.replace("]","");
+        trainRepo.updateStoppagesOfTrain(s, trainNumber);
     }
 
 
