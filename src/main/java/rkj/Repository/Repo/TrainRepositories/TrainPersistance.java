@@ -13,11 +13,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rkj.objLib.objLib.AsynchronousObjects.RabbitMqObjects.TicketEvent;
+import rkj.objLib.objLib.Exception.ExceptionObjects.TrainException;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.Train;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.TrainResponse;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Entity.TrainEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +33,11 @@ public class TrainPersistance {
     @Autowired
     private TrainRepo trainRepo;
 
-    public void addTrain(Train train){
+    public void addTrain(Train train) throws TrainException {
+        Optional<TrainEntity> se = trainRepo.findById(train.getTrainNumber());
+        if(se.isPresent()){
+            throw new TrainException(String.format("Train with train number %s already exists.",train.getTrainNumber()));
+        }
         trainRepo.save(mapper.convertValue(train, TrainEntity.class));
     }
 
