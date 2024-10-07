@@ -12,5 +12,5 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
     @Transactional
     @Modifying
     @Query(value = "update train.ticket set ticket_status=:value where pnr_number=:pnrNumber", nativeQuery = true)
-    int updateTicketStatus(@Param("value") Integer value, @Param("pnrNumber") Integer pnrNumber);
+    int updateTicketStatus(@Param("value") String value, @Param("pnrNumber") Integer pnrNumber);
 }

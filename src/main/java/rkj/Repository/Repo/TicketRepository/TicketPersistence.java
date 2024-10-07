@@ -59,6 +59,6 @@ public class TicketPersistence {
 
     @Transactional
     public void updateTicketStatus(Integer pnrNumber){
-        ticketRepository.updateTicketStatus(1,pnrNumber);
+        ticketRepository.updateTicketStatus("Cancelled",pnrNumber);
     }
 }

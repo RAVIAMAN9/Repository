@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>22</java.version>
-		<objLib.version>2.4.0-SNAPSHOT</objLib.version>
+		<objLib.version>2.5.0-SNAPSHOT</objLib.version>
 	</properties>
 	<dependencies>
 		<dependency>

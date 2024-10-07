@@ -11,6 +11,8 @@ import rkj.Repository.Repo.TrainRepositories.TrainRepo;
 import rkj.objLib.objLib.Exception.ExceptionObjects.StationException;
 import rkj.objLib.objLib.ServiceObjects.StationServiceObject.Station;
 import rkj.objLib.objLib.ServiceObjects.StationServiceObject.StationEntity;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,5 +61,14 @@ public class StationPersistence {
         s.replace("[","");
         s.replace("]","");
         stationRepo.updateTrainNumbers(s, stationCode);
+    }
+
+    public List<Station> getTrainsBetweenStations(String from, String to){
+        List<String> lst = Arrays.asList(from,to);
+        List<StationEntity> l = stationRepo.findByStationCodeIn(lst);
+        return l.stream()
+                .map(
+                        se -> mapper.convertValue(se,Station.class)
+                ).toList();
     }
 }

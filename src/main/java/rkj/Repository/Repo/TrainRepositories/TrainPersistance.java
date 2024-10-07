@@ -19,6 +19,7 @@ import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Dto.TrainResponse;
 import rkj.objLib.objLib.ServiceObjects.TrainServiceObject.Entity.TrainEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class TrainPersistance {
     }
 
     @Transactional
-    public void updateTrain(TicketEvent ticketEvent){
+    public void updateTrain(TicketEvent ticketEvent) throws TrainException {
         Integer q = getNumberOfSeats(ticketEvent.getCoachType(), ticketEvent.getTrainNumber());
         Integer seatNumber = 0;
         if(ticketEvent.getIsCancellable().equals(0)){
@@ -68,6 +69,9 @@ public class TrainPersistance {
             seatNumber =q+ticketEvent.getNumberOfSeats();
         }
         updateTrainDetails(ticketEvent.getTrainNumber(), ticketEvent.getCoachType(), seatNumber);
+        if(ticketEvent.getCoachType().equals("Ac3Tier")) {
+            throw new TrainException();
+        }
     }
 
     private Integer getNumberOfSeats(String coachType, Integer trainNumber){
@@ -80,7 +84,7 @@ public class TrainPersistance {
 
     }
 
-    private int updateTrainDetails(Integer trainNumber, String columnName, Integer numberOfSeats){
+    private int updateTrainDetails(Integer trainNumber, String columnName, Integer numberOfSeats) throws TrainException {
        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
        CriteriaUpdate<TrainEntity> cq = cb.createCriteriaUpdate(TrainEntity.class);
        Root<TrainEntity> root = cq.from(TrainEntity.class);
@@ -101,5 +105,9 @@ public class TrainPersistance {
         trainRepo.updateStoppagesOfTrain(s, trainNumber);
     }
 
-
+    public Map<Integer,String> getTrainList(List<Integer> trainNumbers) {
+        List<TrainEntity> lst = trainRepo.findByTrainNumberIn(trainNumbers);
+        return lst.stream()
+                .collect(Collectors.toMap(TrainEntity::getTrainNumber,TrainEntity::getTrainName));
+    }
 }

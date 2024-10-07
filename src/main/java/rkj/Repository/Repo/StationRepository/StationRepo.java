@@ -17,4 +17,6 @@ public interface StationRepo extends JpaRepository<StationEntity,String> {
 
     @Query(value = "select train_numbers from train.station where station_code=:stationCode", nativeQuery = true)
     List<Integer> getTrainNumbers(String stationCode);
+
+    List<StationEntity> findByStationCodeIn(List<String> stationCodes);
 }
